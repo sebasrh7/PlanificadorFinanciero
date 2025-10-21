@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal } from 'react-native';
-import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit } from 'lucide-react-native';
 import { useBudgetDatabase } from '@/hooks/useBudgetDatabase';
+import { Edit, Plus, Trash2 } from 'lucide-react-native';
+import { useEffect, useState } from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const MONTHS = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -45,7 +45,11 @@ export default function MonthlyScreen() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.description || !formData.amount) return;
+    const amountValue = parseFloat(formData.amount);
+    if (!formData.description.trim() || !formData.amount || isNaN(amountValue) || amountValue <= 0) {
+      alert('Por favor, ingresa una descripción válida y un monto positivo.');
+      return;
+    }
 
     const year = new Date().getFullYear();
     const amount = parseFloat(formData.amount);
@@ -236,7 +240,11 @@ export default function MonthlyScreen() {
               placeholder="Monto"
               keyboardType="numeric"
               value={formData.amount}
-              onChangeText={(text) => setFormData({ ...formData, amount: text })}
+              onChangeText={(text) => {
+                // Permite solo números y un punto decimal
+                const cleanedText = text.replace(/[^0-9.]/g, '');
+                setFormData({ ...formData, amount: cleanedText });
+              }}
             />
 
             <ScrollView style={styles.categoryList}>
